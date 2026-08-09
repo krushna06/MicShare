@@ -131,7 +131,6 @@ export function useCall({ socket, mic, iceServers, friends }) {
       setIncoming(null);
       try {
         const pc = createPeer(friend.id);
-        await addLocalTracks(pc);
         await pc.setRemoteDescription(offer);
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
@@ -145,7 +144,7 @@ export function useCall({ socket, mic, iceServers, friends }) {
         }));
       }
     },
-    [socket, createPeer, addLocalTracks, closePeer]
+    [socket, createPeer, closePeer]
   );
 
   const declineCall = useCallback(

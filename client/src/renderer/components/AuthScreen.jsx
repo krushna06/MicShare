@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createApiClient, extractApiError } from '../lib/api';
+import { createApiClient, extractApiError, postWithRetry } from '../lib/api';
 import Logo from './Logo';
 
 export default function AuthScreen({ onAuthenticated }) {
@@ -18,7 +18,9 @@ export default function AuthScreen({ onAuthenticated }) {
       const api = createApiClient(null);
       const path = mode === 'login' ? '/auth/login' : '/auth/register';
       const body = mode === 'login' ? { username, password } : { username, password, displayName: displayName || undefined };
-      const { data } = await api.post(path, body);
+      const { data } = mode === 'login'
+        ? await postWithRetry(api, path, body)
+        : await api.post(path, body);
       await onAuthenticated(data.token, data.user);
     } catch (err) {
       setError(extractApiError(err));

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { extractApiError } from '../lib/api';
 import DevicesPanel from './DevicesPanel';
 import SettingsPanel from './SettingsPanel';
@@ -17,6 +17,66 @@ export default function SettingsModal({
   const [savedAt, setSavedAt] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+
+  const [currentVersion, setCurrentVersion] = useState(null);
+  const [updateStatus, setUpdateStatus] = useState(null);
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    window.micShare?.app
+      ?.getVersion()
+      .then((v) => {
+        if (mounted) setCurrentVersion(v);
+      })
+      .catch(() => {});
+    const unsubscribe = window.micShare?.updater?.onStatus?.((payload) => {
+      if (!mounted) return;
+      setUpdateStatus(payload);
+      setCheckingUpdates(payload.status === 'checking' || payload.status === 'downloading');
+    });
+    return () => {
+      mounted = false;
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  }, []);
+
+  const handleCheckUpdates = async () => {
+    setUpdateStatus(null);
+    setCheckingUpdates(true);
+    try {
+      const result = await window.micShare?.updater?.check();
+      if (result && result.status === 'disabled') {
+        setUpdateStatus({ status: 'disabled' });
+        setCheckingUpdates(false);
+      }
+    } catch {
+      setUpdateStatus({ status: 'error', message: 'Could not check for updates' });
+      setCheckingUpdates(false);
+    }
+  };
+
+  const updateMessage = (() => {
+    if (!updateStatus) return null;
+    switch (updateStatus.status) {
+      case 'disabled':
+        return 'Updates are not available in this build.';
+      case 'checking':
+        return 'Checking for updates…';
+      case 'available':
+        return `Version ${updateStatus.version} is available and downloading.`;
+      case 'up-to-date':
+        return "You're on the latest version.";
+      case 'downloading':
+        return `Downloading update… ${updateStatus.percent ?? 0}%`;
+      case 'downloaded':
+        return `Version ${updateStatus.version} is ready to install. Restart to apply.`;
+      case 'error':
+        return updateStatus.message || 'Something went wrong checking for updates.';
+      default:
+        return null;
+    }
+  })();
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -119,6 +179,36 @@ export default function SettingsModal({
 
           <DevicesPanel {...devices} />
           <SettingsPanel turn={turn} custom={turnCustom} loaded={turnLoaded} onSave={onSaveTurn} />
+
+          <section className="bg-gray-950 border border-gray-800 rounded-lg p-5">
+            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">
+              Software updates
+            </h3>
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-sm text-gray-300">
+                  {currentVersion ? `Mic Share ${currentVersion}` : 'Mic Share'}
+                </p>
+                {updateMessage && (
+                  <p
+                    className={`text-xs mt-1 ${
+                      updateStatus?.status === 'error' ? 'text-red-400' : 'text-gray-500'
+                    }`}
+                  >
+                    {updateMessage}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={handleCheckUpdates}
+                disabled={checkingUpdates}
+                className="rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 px-4 py-2 text-sm font-medium text-gray-200 shrink-0"
+              >
+                {checkingUpdates ? 'Checking…' : 'Check for updates'}
+              </button>
+            </div>
+          </section>
         </div>
       </div>
     </div>

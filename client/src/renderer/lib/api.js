@@ -75,3 +75,16 @@ export function extractApiError(err) {
   if (err.code === 'ERR_NETWORK') return 'Cannot reach the server';
   return err.message || 'Unexpected error';
 }
+
+const isRetriable = (err) => err.code === 'ECONNABORTED' || err.code === 'ERR_NETWORK';
+
+export async function postWithRetry(api, path, body, { retries = 1, delayMs = 1500 } = {}) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await api.post(path, body);
+    } catch (err) {
+      if (!isRetriable(err) || attempt >= retries) throw err;
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+}

@@ -13,9 +13,14 @@ function createPool() {
     database: config.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
+    maxIdle: 5,
     namedPlaceholders: true,
     charset: 'utf8mb4',
     timezone: 'Z',
+    connectTimeout: 10000,
+    idleTimeout: 60000,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
   });
 }
 

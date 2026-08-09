@@ -68,9 +68,11 @@ export default function SessionPanel({
   deafened,
 }) {
   const liveSessions = Object.values(sessions).filter((s) => s.status !== 'ended');
-  const liveCount = liveSessions.filter((s) => s.status === 'connected').length;
+  const connectedSessions = liveSessions.filter((s) => s.status === 'connected');
+  const sharingCount = connectedSessions.filter((s) => !s.remoteStream).length;
+  const receivingCount = connectedSessions.filter((s) => s.remoteStream).length;
+  const liveCount = connectedSessions.length;
 
-  // Ringing/connecting sessions first, connected ones next, by recency.
   const ordered = [...liveSessions].sort((a, b) => {
     const rank = { ringing: 0, calling: 1, connecting: 2, connected: 3 };
     return rank[a.status] - rank[b.status];
@@ -85,7 +87,19 @@ export default function SessionPanel({
           </h2>
           {liveCount > 0 && (
             <p className="text-xs text-green-400 mt-1">
-              Sharing your mic with {liveCount} {liveCount === 1 ? 'friend' : 'friends'}
+              {sharingCount > 0 && (
+                <>
+                  Sharing your mic with {sharingCount}{' '}
+                  {sharingCount === 1 ? 'friend' : 'friends'}
+                  {receivingCount > 0 && ' · '}
+                </>
+              )}
+              {receivingCount > 0 && (
+                <>
+                  Receiving mic from {receivingCount}{' '}
+                  {receivingCount === 1 ? 'friend' : 'friends'}
+                </>
+              )}
             </p>
           )}
         </div>
@@ -139,18 +153,28 @@ export default function SessionPanel({
                     </p>
                     <p className="text-xs text-gray-400">
                       {session.status === 'connected'
-                        ? 'Receiving remote audio via WebRTC'
+                        ? session.remoteStream
+                          ? 'Receiving remote audio via WebRTC'
+                          : 'Sharing your mic with them'
                         : meta.label}
                     </p>
                   </div>
                   <span className="text-xs text-gray-300 font-medium uppercase tracking-wide">
-                    {meta.label}
+                    {session.status === 'connected'
+                      ? session.remoteStream
+                        ? 'Receiving'
+                        : 'Sharing'
+                      : meta.label}
                   </span>
                   <button
                     onClick={() => hangup(session.friend.id)}
                     className="rounded bg-red-600 hover:bg-red-500 px-3 py-1.5 text-sm text-white"
                   >
-                    {session.status === 'connected' ? 'Stop sharing' : 'Cancel'}
+                    {session.status === 'connected'
+                      ? session.remoteStream
+                        ? 'Stop receiving'
+                        : 'Stop sharing'
+                      : 'Cancel'}
                   </button>
                 </div>
                 {session.error && (

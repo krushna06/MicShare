@@ -9,6 +9,11 @@ const STATUS_LABELS = {
   connected: 'Sharing',
 };
 
+function sessionRoleLabel(session) {
+  if (session.status !== 'connected') return STATUS_LABELS[session.status];
+  return session.remoteStream ? 'Receiving' : 'Sharing';
+}
+
 function PresenceDot({ online }) {
   return (
     <span
@@ -347,7 +352,7 @@ function FriendsList({ friends, busyUserId, sessions, startCall, hangup, unfrien
     <ul className="space-y-1">
       {ordered.map((friend) => {
         const session = sessions[friend.id];
-        const statusLabel = session ? STATUS_LABELS[session.status] : null;
+        const statusLabel = session ? sessionRoleLabel(session) : null;
         const inCall = session && session.status !== 'ended';
         return (
           <li
