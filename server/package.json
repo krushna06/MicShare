@@ -13,6 +13,7 @@
     "lint": "echo \"server: no lint configured yet\""
   },
   "dependencies": {
+    "@micshare/database": "*",
     "@micshare/shared": "*",
     "axios": "^1.7.9",
     "bcrypt": "^6.0.0",

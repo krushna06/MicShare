@@ -6,6 +6,7 @@ const logger = require('./logger');
 const { createApp } = require('./app');
 const { createSocketServer } = require('./socket');
 const { getPool, checkHealth } = require('./db/connection');
+const { runMigrations } = require('@micshare/database/src/migrate');
 
 async function main() {
   loadEnv();
@@ -15,6 +16,9 @@ async function main() {
 
   logger.info(`Mic Share backend initializing (${environment})`);
   logger.info(`Connecting to MySQL at ${dbConfig.DB_HOST}:${dbConfig.DB_PORT}/${dbConfig.DB_NAME}`);
+
+  await runMigrations();
+  logger.info('Database schema up to date');
 
   await checkHealth();
   logger.info('Database connection OK');

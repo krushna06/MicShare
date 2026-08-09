@@ -110,7 +110,11 @@ async function main() {
   await runMigrations();
 }
 
-main().catch((err) => {
-  console.error(`[migrate] error: ${err.message}`);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(`[migrate] error: ${err.message}`);
+    process.exit(1);
+  });
+}
+
+module.exports = { runMigrations, showStatus };

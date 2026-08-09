@@ -1,6 +1,6 @@
 {
   "name": "mic-share",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Share live microphone audio between friends using VB-CABLE.",
   "license": "UNLICENSED",

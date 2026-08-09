@@ -150,13 +150,15 @@ Fill in at least:
 
 Generate a secret with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 
-### 4. Create the database
+### 4. Start the server (schema is auto-migrated)
+
+The server applies any pending database migrations automatically on startup
+(`CREATE DATABASE IF NOT EXISTS` + all pending migrations), so fresh deployments
+work out of the box. You can still run them manually if you prefer:
 
 ```sh
 npm run db:migrate
 ```
-
-Creates the database (if missing) and applies the schema.
 
 ### 5. Keep it running with pm2
 
