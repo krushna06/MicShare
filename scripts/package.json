@@ -1,0 +1,13 @@
+{
+  "name": "@micshare/scripts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mic Share operational and development scripts.",
+  "type": "commonjs",
+  "scripts": {
+    "lint": "echo \"scripts: no lint configured yet\""
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  }
+}

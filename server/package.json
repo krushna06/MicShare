@@ -1,0 +1,32 @@
+{
+  "name": "@micshare/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mic Share backend: Express REST API, Socket.IO signaling, and WebRTC signaling relay.",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "nodemon --watch src src/index.js",
+    "build": "echo \"server: nothing to bundle yet\"",
+    "start": "node src/index.js",
+    "start:prod": "node scripts/start-prod.js",
+    "lint": "echo \"server: no lint configured yet\""
+  },
+  "dependencies": {
+    "@micshare/shared": "*",
+    "axios": "^1.7.9",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.6.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.12.0",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.0.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

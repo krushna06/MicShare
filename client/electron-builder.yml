@@ -1,0 +1,34 @@
+appId: com.micshare.desktop
+productName: Mic Share
+copyright: Copyright (c) 2026 Mic Share
+
+directories:
+  output: release
+
+electronDist: ../node_modules/electron/dist
+
+files:
+  - dist/**/*
+  - src/main/**/*
+  - src/preload/**/*
+  - package.json
+
+asar: true
+compression: normal
+
+npmRebuild: false
+
+win:
+  icon: build/icon.png
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Mic Share
+  deleteAppDataOnUninstall: false

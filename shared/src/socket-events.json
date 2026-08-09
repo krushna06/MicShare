@@ -1,0 +1,18 @@
+{
+  "app": {
+    "ping": "app:ping",
+    "pong": "app:pong"
+  },
+  "presence": {
+    "update": "presence:update"
+  },
+  "friends": {
+    "updated": "friends:updated"
+  },
+  "rtc": {
+    "call": "rtc:call",
+    "answer": "rtc:answer",
+    "ice": "rtc:ice",
+    "hangup": "rtc:hangup"
+  }
+}

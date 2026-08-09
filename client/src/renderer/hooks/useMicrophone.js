@@ -1,0 +1,134 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+function describeMediaError(err) {
+  switch (err.name) {
+    case 'NotAllowedError':
+      return 'Microphone access was denied. Enable it in the permission prompt to capture audio.';
+    case 'NotFoundError':
+      return 'No microphone was found on this system.';
+    case 'NotReadableError':
+      return 'The microphone is in use by another application. Close it and try again.';
+    case 'OverconstrainedError':
+      return 'The selected microphone is no longer available.';
+    default:
+      return err.message || 'Microphone capture failed';
+  }
+}
+
+export function useMicrophone(selectedInput, inputs) {
+  const [capturing, setCapturing] = useState(false);
+  const [level, setLevel] = useState(0);
+  const [format, setFormat] = useState(null);
+  const [stream, setStream] = useState(null);
+  const [error, setError] = useState(null);
+  const [muted, setMuted] = useState(false);
+
+  const streamRef = useRef(null);
+  const contextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const levelTimerRef = useRef(null);
+  const mutedRef = useRef(false);
+
+  const toggleMute = useCallback(() => {
+    const next = !mutedRef.current;
+    mutedRef.current = next;
+    setMuted(next);
+    const track = streamRef.current && streamRef.current.getAudioTracks()[0];
+    if (track) track.enabled = !next;
+  }, []);
+
+  const stop = useCallback(() => {
+    if (levelTimerRef.current) clearInterval(levelTimerRef.current);
+    levelTimerRef.current = null;
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (contextRef.current) {
+      contextRef.current.close().catch(() => {});
+      contextRef.current = null;
+    }
+    analyserRef.current = null;
+    setLevel(0);
+    setStream(null);
+    setCapturing(false);
+  }, []);
+
+  const start = useCallback(async () => {
+    setError(null);
+    stop();
+    try {
+      const audio = selectedInput ? { deviceId: { exact: selectedInput } } : true;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio, video: false });
+      const track = stream.getAudioTracks()[0];
+      if (!track) {
+        stream.getTracks().forEach((t) => t.stop());
+        throw new Error('No microphone track was returned by the system');
+      }
+      streamRef.current = stream;
+      track.enabled = !mutedRef.current;
+      setStream(stream);
+
+      const context = new AudioContext();
+      contextRef.current = context;
+      const source = context.createMediaStreamSource(stream);
+      const analyser = context.createAnalyser();
+      analyser.fftSize = 2048;
+      const silent = context.createGain();
+      silent.gain.value = 0;
+      source.connect(analyser);
+      analyser.connect(silent);
+      silent.connect(context.destination);
+      analyserRef.current = analyser;
+
+      if (context.state === 'suspended') {
+        await context.resume();
+      }
+
+      const settings = track.getSettings();
+      const device = inputs.find((d) => d.deviceId === selectedInput) || null;
+      setFormat({
+        label: device ? device.label : null,
+        sampleRate: settings.sampleRate || context.sampleRate,
+        channelCount: settings.channelCount || 1,
+      });
+
+      track.onended = () => {
+        stop();
+        setError('Microphone capture ended because the device disconnected.');
+      };
+
+      const samples = new Uint8Array(analyser.fftSize);
+      const tick = () => {
+        analyser.getByteTimeDomainData(samples);
+        let sum = 0;
+        for (let i = 0; i < samples.length; i += 1) {
+          const v = (samples[i] - 128) / 128;
+          sum += v * v;
+        }
+        setLevel(Math.min(1, Math.sqrt(sum / samples.length)));
+      };
+      levelTimerRef.current = setInterval(tick, 50);
+
+      setCapturing(true);
+      return stream;
+    } catch (err) {
+      stop();
+      const message = describeMediaError(err);
+      setError(message);
+      throw new Error(message);
+    }
+  }, [selectedInput, inputs, stop]);
+
+  useEffect(() => stop, [stop]);
+
+  const prevInputRef = useRef(selectedInput);
+  useEffect(() => {
+    const prev = prevInputRef.current;
+    prevInputRef.current = selectedInput;
+    if (prev === selectedInput) return;
+    if (streamRef.current) start();
+  }, [selectedInput, start]);
+
+  return { capturing, level, format, stream, error, start, stop, muted, toggleMute };
+}
