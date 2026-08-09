@@ -8,6 +8,15 @@ audio with one another in real time using [VB-CABLE](https://vb-audio.com/Cable/
 The intended use is between consenting friends for experimentation, entertainment,
 and voice swapping.
 
+## Setup
+
+| Place | Setting |
+| ----- | ------- |
+| Mic Share → Primary Microphone | Your real mic |
+| Mic Share → Mic Share Virtual Microphone | Cable Input (VB-CABLE) |
+| Mic Share → Playback | Your speakers/headphones |
+| Discord/Valorant → Input Device | Cable Output |
+
 ## Architecture
 
 ```

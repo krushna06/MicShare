@@ -15,40 +15,31 @@ function AudioSink({ stream, playbackId, routeId, deafened }) {
   const playbackRef = useRef(null);
   const routeRef = useRef(null);
 
+  const connectElement = (el) => {
+    if (!el || !stream) return;
+    el.srcObject = stream;
+    el.muted = Boolean(deafened);
+    el.play().catch(() => {});
+  };
+
   useEffect(() => {
-    const els = [playbackRef.current, routeRef.current].filter(Boolean);
-    els.forEach((el) => {
-      el.srcObject = stream;
-      el.play().catch(() => {});
-    });
-    return () => {
-      els.forEach((el) => {
-        el.srcObject = null;
-      });
-    };
-  }, [stream]);
+    connectElement(playbackRef.current);
+    connectElement(routeRef.current);
+  }, [stream, routeId, deafened]);
 
   useEffect(() => {
     const el = playbackRef.current;
     if (el && playbackId && typeof el.setSinkId === 'function') {
       el.setSinkId(playbackId).catch(() => {});
     }
-  }, [playbackId, stream]);
+  }, [playbackId, stream, routeId]);
 
   useEffect(() => {
     const el = routeRef.current;
     if (el && routeId && typeof el.setSinkId === 'function') {
       el.setSinkId(routeId).catch(() => {});
     }
-  }, [routeId, stream]);
-
-  useEffect(() => {
-    [playbackRef.current, routeRef.current]
-      .filter(Boolean)
-      .forEach((el) => {
-        el.muted = Boolean(deafened);
-      });
-  }, [deafened, stream]);
+  }, [routeId, stream, playbackId]);
 
   return (
     <>

@@ -18,8 +18,10 @@ export function useDevices() {
       const list = await listAudioDevices();
       setDevices(list);
       setError(null);
+      return list;
     } catch (err) {
       setError(err.message);
+      return [];
     }
   }, []);
 
@@ -29,23 +31,47 @@ export function useDevices() {
       const unlocked = await unlockDeviceLabels();
       if (!mounted) return;
       setPermission(unlocked ? 'granted' : 'denied');
-      await refresh();
+      const list = await refresh();
 
       const [inputId, outputId, playbackId] = await Promise.all([
         window.micShare?.settings?.get(INPUT_KEY),
         window.micShare?.settings?.get(OUTPUT_KEY),
         window.micShare?.settings?.get(PLAYBACK_KEY),
       ]);
-      if (mounted) {
-        if (typeof inputId === 'string') setSelectedInput(inputId);
-        if (typeof outputId === 'string') setSelectedOutput(outputId);
-        if (typeof playbackId === 'string') setSelectedPlayback(playbackId);
+      if (!mounted) return;
+
+      const savedInput = typeof inputId === 'string' ? inputId : null;
+      const savedOutput = typeof outputId === 'string' ? outputId : null;
+      const savedPlayback = typeof playbackId === 'string' ? playbackId : null;
+
+      if (savedInput) {
+        setSelectedInput(savedInput);
+      } else {
+        const defaultInput = list.find((d) => d.kind === 'input' && !d.isVirtualCable);
+        if (defaultInput) {
+          setSelectedInput(defaultInput.deviceId);
+          persistSelection(INPUT_KEY, defaultInput.deviceId);
+        }
+      }
+
+      if (savedOutput) {
+        setSelectedOutput(savedOutput);
+      } else {
+        const defaultOutput = list.find((d) => d.kind === 'output' && d.isVirtualCable);
+        if (defaultOutput) {
+          setSelectedOutput(defaultOutput.deviceId);
+          persistSelection(OUTPUT_KEY, defaultOutput.deviceId);
+        }
+      }
+
+      if (savedPlayback) {
+        setSelectedPlayback(savedPlayback);
       }
     })();
     return () => {
       mounted = false;
     };
-  }, [refresh]);
+  }, [refresh, persistSelection]);
 
   useEffect(() => {
     const unsubscribe = subscribeToDeviceChanges(() => {
