@@ -25,6 +25,17 @@ export function useDevices() {
     }
   }, []);
 
+  const persistSelection = useCallback(async (key, value) => {
+    try {
+      if (value) {
+        await window.micShare?.settings?.set(key, value);
+      } else {
+        await window.micShare?.settings?.delete(key);
+      }
+    } catch {
+    }
+  }, []);
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -79,17 +90,6 @@ export function useDevices() {
     });
     return unsubscribe;
   }, [refresh]);
-
-  const persistSelection = useCallback(async (key, value) => {
-    try {
-      if (value) {
-        await window.micShare?.settings?.set(key, value);
-      } else {
-        await window.micShare?.settings?.delete(key);
-      }
-    } catch {
-    }
-  }, []);
 
   const selectInput = useCallback(async (deviceId) => {
     setSelectedInput(deviceId || null);
