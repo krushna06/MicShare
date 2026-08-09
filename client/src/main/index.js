@@ -2,6 +2,7 @@ const { app, BrowserWindow, shell, session, Menu } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
 const { registerIpcHandlers } = require('./ipc');
+const { initUpdater } = require('./updater');
 
 const isDev = Boolean(process.env.VITE_DEV_SERVER_URL);
 
@@ -61,6 +62,7 @@ app.whenReady().then(() => {
   log.info('Mic Share client starting', { version: app.getVersion(), isDev });
 
   createMainWindow();
+  initUpdater(() => BrowserWindow.getAllWindows()[0]);
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();

@@ -15,4 +15,12 @@ contextBridge.exposeInMainWorld('micShare', {
     getVersion: () => ipcRenderer.invoke('app:get-version'),
     log: (level, message) => ipcRenderer.invoke('app:log', level, message),
   },
+  updater: {
+    check: () => ipcRenderer.invoke('updater:check'),
+    onStatus: (callback) => {
+      const listener = (_event, payload) => callback(payload);
+      ipcRenderer.on('updater:status', listener);
+      return () => ipcRenderer.removeListener('updater:status', listener);
+    },
+  },
 });

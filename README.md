@@ -95,6 +95,39 @@ npm run dist:win
 
 Output lands in `client/release/`.
 
+## Publishing updates
+
+Users on **0.2.0+** get updates automatically from your GitHub releases. The
+app checks on launch and every 4 hours, downloads in the background, and then
+asks to restart.
+
+1. Bump the version in `client/package.json` (e.g. `0.2.0` → `0.2.1`).
+2. Commit and push, then tag the release:
+
+   ```sh
+   git tag v0.2.0 && git push origin v0.2.0
+   ```
+
+3. Publish the build (needs a GitHub token with `repo` scope):
+
+   ```sh
+   export GH_TOKEN=ghp_xxxxxxxxxxxxxxxx
+   cd client
+   npm run dist:publish
+   ```
+
+   This builds the installer and uploads it — with `latest.yml` and the
+   blockmap — to the GitHub release for that tag. That's everything the
+   auto-updater needs.
+
+Notes:
+
+- The GitHub repo should be **public** (end-user apps can't authenticate to a
+  private one).
+- New versions must be **higher** than the installed one or no update triggers.
+- Users can still install a version manually; the updater simply won't offer
+  it again once they're on the latest.
+
 ---
 
 ## Deploying the server

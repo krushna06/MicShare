@@ -2,6 +2,11 @@ appId: com.micshare.desktop
 productName: Mic Share
 copyright: Copyright (c) 2026 Mic Share
 
+publish:
+  provider: github
+  owner: krushna06
+  repo: MicShare
+
 directories:
   output: release
 
