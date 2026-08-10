@@ -10,6 +10,14 @@
 
   body {
     background-color: #111214;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  input,
+  textarea {
+    -webkit-user-select: text;
+    user-select: text;
   }
 
   ::selection {

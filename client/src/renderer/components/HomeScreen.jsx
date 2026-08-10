@@ -176,20 +176,19 @@ export default function HomeScreen({ token, user, onLogout }) {
         </main>
       </div>
 
-      {settingsOpen && (
-        <SettingsModal
-          devices={devices}
-          turn={rtcConfig.turn}
-          turnCustom={rtcConfig.custom}
-          turnLoaded={rtcConfig.loaded}
-          onSaveTurn={rtcConfig.save}
-          profile={profile}
-          onUpdateProfile={updateProfile}
-          onClose={() => setSettingsOpen(false)}
-        />
-      )}
+      <SettingsModal
+        open={settingsOpen}
+        devices={devices}
+        turn={rtcConfig.turn}
+        turnCustom={rtcConfig.custom}
+        turnLoaded={rtcConfig.loaded}
+        onSaveTurn={rtcConfig.save}
+        profile={profile}
+        onUpdateProfile={updateProfile}
+        onClose={() => setSettingsOpen(false)}
+      />
 
-      {deviceInfoOpen && <DeviceInfoModal onClose={() => setDeviceInfoOpen(false)} />}
+      <DeviceInfoModal open={deviceInfoOpen} onClose={() => setDeviceInfoOpen(false)} />
     </div>
   );
 }

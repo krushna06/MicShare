@@ -292,5 +292,16 @@ export function useCall({ socket, mic, iceServers, friends }) {
     [closePeer, clearTimeoutFor]
   );
 
+  useEffect(() => {
+    if (!incoming) {
+      window.micShare?.window?.flash(false);
+      return undefined;
+    }
+    window.micShare?.window?.flash(true);
+    return () => {
+      window.micShare?.window?.flash(false);
+    };
+  }, [incoming]);
+
   return { sessions, incoming, startCall, acceptCall, declineCall, hangup };
 }

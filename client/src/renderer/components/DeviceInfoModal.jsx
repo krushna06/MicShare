@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MicIcon, HeadphoneIcon, VirtualMicIcon } from './icons';
+import { useAnimatedMount } from '../hooks/useAnimatedMount';
 
 const DEVICES = [
   {
@@ -34,14 +35,31 @@ const DEVICES = [
   },
 ];
 
-export default function DeviceInfoModal({ onClose }) {
+export default function DeviceInfoModal({ open, onClose }) {
+  const { render, visible } = useAnimatedMount(open);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open, onClose]);
+
+  if (!render) return null;
+
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-6"
+      className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 transition-opacity duration-200 ${
+        visible ? 'opacity-100' : 'opacity-0'
+      }`}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-gray-900 border border-gray-800 rounded-lg shadow-2xl max-h-[85vh] overflow-y-auto"
+        className={`w-full max-w-lg bg-gray-900 border border-gray-800 rounded-lg shadow-2xl max-h-[85vh] overflow-y-auto transition-all duration-200 ${
+          visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 sticky top-0 bg-gray-900">

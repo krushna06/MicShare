@@ -1,5 +1,6 @@
 import React from 'react';
 import { MicIcon, VirtualMicIcon, HeadphoneIcon } from './icons';
+import SelectMenu from './SelectMenu';
 
 const SECTIONS = [
   {
@@ -64,8 +65,9 @@ export default function DevicesPanel({
   missingOutput,
   missingPlayback,
 }) {
-  const selectClass =
-    'w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500';
+  const inputOptions = inputs.map((d) => ({ value: d.deviceId, label: d.label }));
+  const virtualOptions = virtualCableOutputs.map((d) => ({ value: d.deviceId, label: d.label }));
+  const playbackOptions = playbackOutputs.map((d) => ({ value: d.deviceId, label: d.label }));
 
   return (
     <section className="bg-gray-950 border border-gray-800 rounded-lg p-5">
@@ -111,16 +113,12 @@ export default function DevicesPanel({
                 No microphone detected.
               </p>
             ) : (
-              <select
+              <SelectMenu
                 value={selectedInput || ''}
-                onChange={(e) => selectInput(e.target.value)}
-                className={selectClass}
-              >
-                <option value="">Select a microphone…</option>
-                {inputs.map((d) => (
-                  <option key={`${d.kind}:${d.deviceId}`} value={d.deviceId}>{d.label}</option>
-                ))}
-              </select>
+                onChange={selectInput}
+                placeholder="Select a microphone…"
+                options={inputOptions}
+              />
             )}
           </div>
 
@@ -132,32 +130,24 @@ export default function DevicesPanel({
                 No VB-CABLE device detected. Install VB-CABLE and check that it is plugged in.
               </p>
             ) : (
-              <select
+              <SelectMenu
                 value={selectedOutput || ''}
-                onChange={(e) => selectOutput(e.target.value)}
-                className={selectClass}
-              >
-                <option value="">Select a Mic Share device…</option>
-                {virtualCableOutputs.map((d) => (
-                  <option key={`${d.kind}:${d.deviceId}`} value={d.deviceId}>{d.label}</option>
-                ))}
-              </select>
+                onChange={selectOutput}
+                placeholder="Select a Mic Share device…"
+                options={virtualOptions}
+              />
             )}
           </div>
 
           <div className="space-y-1">
             <SectionHeader section={SECTIONS[2]} />
             <p className="text-xs text-gray-500">{SECTIONS[2].description}</p>
-            <select
+            <SelectMenu
               value={selectedPlayback || ''}
-              onChange={(e) => selectPlayback(e.target.value)}
-              className={selectClass}
-            >
-              <option value="">System default (recommended)</option>
-              {playbackOutputs.map((d) => (
-                <option key={`${d.kind}:${d.deviceId}`} value={d.deviceId}>{d.label}</option>
-              ))}
-            </select>
+              onChange={selectPlayback}
+              placeholder="System default (recommended)"
+              options={playbackOptions}
+            />
             {playbackOutputs.length === 0 && (
               <p className="text-sm text-gray-400 rounded-lg bg-gray-800 px-3 py-2">
                 No speakers or headphones detected. Shared audio will use the system default.

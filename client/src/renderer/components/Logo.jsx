@@ -7,7 +7,9 @@ export default function Logo({ className = 'w-10 h-10' }) {
     <img
       src={logoUrl}
       alt="Mic Share logo"
+      draggable={false}
       className={`${className} rounded-xl object-cover select-none`}
+      style={{ WebkitUserDrag: 'none' }}
     />
   );
 }

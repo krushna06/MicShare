@@ -15,6 +15,9 @@ contextBridge.exposeInMainWorld('micShare', {
     getVersion: () => ipcRenderer.invoke('app:get-version'),
     log: (level, message) => ipcRenderer.invoke('app:log', level, message),
   },
+  window: {
+    flash: (enable) => ipcRenderer.invoke('window:flash', enable),
+  },
   updater: {
     check: () => ipcRenderer.invoke('updater:check'),
     onStatus: (callback) => {
