@@ -89,3 +89,19 @@ export function InfoIcon() {
     </svg>
   );
 }
+
+export function ChevronDownIcon() {
+  return (
+    <svg {...iconProps()}>
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
+export function CheckIcon() {
+  return (
+    <svg {...iconProps()}>
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  );
+}

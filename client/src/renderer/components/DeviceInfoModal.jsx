@@ -1,5 +1,6 @@
 import React from 'react';
 import { MicIcon, HeadphoneIcon, VirtualMicIcon } from './icons';
+import Modal from './Modal';
 
 const DEVICES = [
   {
@@ -34,28 +35,21 @@ const DEVICES = [
   },
 ];
 
-export default function DeviceInfoModal({ onClose }) {
+export default function DeviceInfoModal({ open, onClose }) {
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-6"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-lg bg-gray-900 border border-gray-800 rounded-lg shadow-2xl max-h-[85vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 sticky top-0 bg-gray-900">
-          <h2 className="text-base font-bold text-gray-100">How Mic Share audio works</h2>
-          <button
-            onClick={onClose}
-            className="rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-100 w-8 h-8 flex items-center justify-center text-lg leading-none"
-            title="Close"
-          >
-            ×
-          </button>
-        </div>
+    <Modal open={open} onClose={onClose} maxWidth="max-w-lg">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-gray-900 shrink-0">
+        <h2 className="text-base font-bold text-gray-100">How Mic Share audio works</h2>
+        <button
+          onClick={onClose}
+          className="rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-100 w-8 h-8 flex items-center justify-center text-lg leading-none"
+          title="Close"
+        >
+          ×
+        </button>
+      </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-6 space-y-5 overflow-y-auto min-h-0">
           <p className="text-sm text-gray-400 leading-relaxed">
             Mic Share uses three devices. Each one has a clear role in the
             audio path so you can always tell what is capturing your voice,
@@ -100,7 +94,6 @@ export default function DeviceInfoModal({ onClose }) {
             so other apps can use it as a mic.
           </p>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

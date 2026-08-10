@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { extractApiError } from '../lib/api';
 import DevicesPanel from './DevicesPanel';
 import SettingsPanel from './SettingsPanel';
+import SelectMenu from './SelectMenu';
+import Modal from './Modal';
 
 export default function SettingsModal({
   devices,
@@ -11,6 +13,9 @@ export default function SettingsModal({
   onSaveTurn,
   onUpdateProfile,
   profile,
+  noiseSuppression,
+  onNoiseSuppressionChange,
+  open,
   onClose,
 }) {
   const [displayName, setDisplayName] = useState(profile?.displayName || '');
@@ -110,26 +115,19 @@ export default function SettingsModal({
     : '—';
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-6"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-xl bg-gray-900 border border-gray-800 rounded-lg shadow-2xl max-h-[85vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 sticky top-0 bg-gray-900">
-          <h2 className="text-base font-bold text-gray-100">Settings</h2>
-          <button
-            onClick={onClose}
-            className="rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-100 w-8 h-8 flex items-center justify-center text-lg leading-none"
-            title="Close settings"
-          >
-            ×
-          </button>
-        </div>
+    <Modal open={open} onClose={onClose} maxWidth="max-w-xl">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-gray-900 shrink-0">
+        <h2 className="text-base font-bold text-gray-100">Settings</h2>
+        <button
+          onClick={onClose}
+          className="rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-100 w-8 h-8 flex items-center justify-center text-lg leading-none"
+          title="Close settings"
+        >
+          ×
+        </button>
+      </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto min-h-0">
           <section className="bg-gray-950 border border-gray-800 rounded-lg p-5">
             <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">
               Profile
@@ -181,6 +179,32 @@ export default function SettingsModal({
           <SettingsPanel turn={turn} custom={turnCustom} loaded={turnLoaded} onSave={onSaveTurn} />
 
           <section className="bg-gray-950 border border-gray-800 rounded-lg p-5">
+            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-1">
+              Audio
+            </h3>
+            <p className="text-xs text-gray-500 mb-4">
+              How your microphone is cleaned up before it is shared with friends.
+            </p>
+            <p className="block text-sm font-medium text-gray-300 mb-1">
+              Noise suppression
+            </p>
+            <SelectMenu
+              value={noiseSuppression}
+              onChange={onNoiseSuppressionChange}
+              placeholder="Noise suppression"
+              options={[
+                { value: 'off', label: 'Off' },
+                { value: 'builtin', label: 'Built-in (Chrome)' },
+                { value: 'rnnoise', label: 'RNNoise (recommended)' },
+              ]}
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              RNNoise removes background noise using a neural network running locally. Built-in
+              uses your browser's native echo/noise cancellation.
+            </p>
+          </section>
+
+          <section className="bg-gray-950 border border-gray-800 rounded-lg p-5">
             <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">
               Software updates
             </h3>
@@ -210,7 +234,6 @@ export default function SettingsModal({
             </div>
           </section>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -39,3 +39,17 @@
     background: transparent;
   }
 }
+
+@layer components {
+  .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(0px);
+    backdrop-filter: blur(0px);
+    transition: opacity 200ms ease, background-color 200ms ease, backdrop-filter 200ms ease,
+      -webkit-backdrop-filter 200ms ease;
+  }
+  .modal-backdrop--visible {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+}

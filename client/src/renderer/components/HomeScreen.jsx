@@ -27,11 +27,12 @@ export default function HomeScreen({ token, user, onLogout }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [deviceInfoOpen, setDeviceInfoOpen] = useState(false);
   const [deafened, setDeafened] = useState(false);
+  const [noiseSuppression, setNoiseSuppression] = useState('builtin');
   const socket = useSocket(token);
   const { friends, error: presenceError, isOnline, refresh: refreshFriends } =
     usePresence(token, socket);
   const devices = useDevices();
-  const mic = useMicrophone(devices.selectedInput, devices.inputs);
+  const mic = useMicrophone(devices.selectedInput, devices.inputs, noiseSuppression);
   const rtcConfig = useRtcConfig();
   const iceServers = useMemo(
     () => rtcConfig.iceServers(),
@@ -60,6 +61,26 @@ export default function HomeScreen({ token, user, onLogout }) {
     const { data } = await api.patch('/users/me', { displayName });
     setProfile(data.user);
   }, [token]);
+
+  useEffect(() => {
+    let mounted = true;
+    window.micShare?.settings
+      ?.get('noiseSuppression')
+      .then((value) => {
+        if (mounted && (value === 'off' || value === 'builtin' || value === 'rnnoise')) {
+          setNoiseSuppression(value);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleNoiseSuppressionChange = useCallback((next) => {
+    setNoiseSuppression(next);
+    window.micShare?.settings?.set('noiseSuppression', next).catch(() => {});
+  }, []);
 
   return (
     <div className="h-screen flex flex-col bg-gray-950 text-gray-100 overflow-hidden">
@@ -176,20 +197,21 @@ export default function HomeScreen({ token, user, onLogout }) {
         </main>
       </div>
 
-      {settingsOpen && (
-        <SettingsModal
-          devices={devices}
-          turn={rtcConfig.turn}
-          turnCustom={rtcConfig.custom}
-          turnLoaded={rtcConfig.loaded}
-          onSaveTurn={rtcConfig.save}
-          profile={profile}
-          onUpdateProfile={updateProfile}
-          onClose={() => setSettingsOpen(false)}
-        />
-      )}
+      <SettingsModal
+        open={settingsOpen}
+        devices={devices}
+        turn={rtcConfig.turn}
+        turnCustom={rtcConfig.custom}
+        turnLoaded={rtcConfig.loaded}
+        onSaveTurn={rtcConfig.save}
+        profile={profile}
+        onUpdateProfile={updateProfile}
+        noiseSuppression={noiseSuppression}
+        onNoiseSuppressionChange={handleNoiseSuppressionChange}
+        onClose={() => setSettingsOpen(false)}
+      />
 
-      {deviceInfoOpen && <DeviceInfoModal onClose={() => setDeviceInfoOpen(false)} />}
+      <DeviceInfoModal open={deviceInfoOpen} onClose={() => setDeviceInfoOpen(false)} />
     </div>
   );
 }

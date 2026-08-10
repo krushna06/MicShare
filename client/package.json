@@ -17,6 +17,7 @@
     "lint": "echo \"client: no lint configured yet\""
   },
   "dependencies": {
+    "@sapphi-red/web-noise-suppressor": "^0.3.5",
     "electron-log": "^5.2.4",
     "electron-store": "^8.2.0",
     "electron-updater": "^6.6.2"
