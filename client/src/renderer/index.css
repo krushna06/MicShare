@@ -40,6 +40,20 @@
   }
 }
 
+*,
+*::before,
+*::after {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+[contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 @layer components {
   .modal-backdrop {
     background-color: rgba(0, 0, 0, 0.6);
