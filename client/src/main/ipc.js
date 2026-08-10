@@ -1,4 +1,4 @@
-const { ipcMain, safeStorage, app } = require('electron');
+const { ipcMain, safeStorage, app, BrowserWindow } = require('electron');
 const Store = require('electron-store');
 const log = require('electron-log');
 
@@ -84,6 +84,13 @@ function registerIpcHandlers() {
   ipcMain.handle('app:log', (event, level, message) => {
     const safeLevel = ['error', 'warn', 'info', 'debug'].includes(level) ? level : 'info';
     log[safeLevel](`[renderer] ${message}`);
+  });
+
+  ipcMain.handle('window:flash', (event, enabled) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win) return false;
+    win.flashFrame(Boolean(enabled));
+    return true;
   });
 }
 

@@ -30,6 +30,10 @@ function createMainWindow() {
     window.show();
   });
 
+  window.on('focus', () => {
+    window.flashFrame(false);
+  });
+
   window.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('http://') || url.startsWith('https://')) {
       shell.openExternal(url);

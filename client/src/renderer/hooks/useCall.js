@@ -227,6 +227,14 @@ export function useCall({ socket, mic, iceServers, friends }) {
   }, [socket, closePeer, clearTimeoutFor, endSession, updateSession]);
 
   useEffect(() => {
+    if (!incoming || document.hasFocus()) return undefined;
+    window.micShare?.window?.flash(true);
+    return () => {
+      window.micShare?.window?.flash(false);
+    };
+  }, [incoming]);
+
+  useEffect(() => {
     if (!friends) return undefined;
     Object.keys(sessionsRef.current).forEach((friendId) => {
       const session = sessionsRef.current[friendId];
