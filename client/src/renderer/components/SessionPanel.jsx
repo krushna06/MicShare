@@ -69,8 +69,8 @@ export default function SessionPanel({
 }) {
   const liveSessions = Object.values(sessions).filter((s) => s.status !== 'ended');
   const connectedSessions = liveSessions.filter((s) => s.status === 'connected');
-  const sharingCount = connectedSessions.filter((s) => !s.remoteStream).length;
-  const receivingCount = connectedSessions.filter((s) => s.remoteStream).length;
+  const sharingCount = connectedSessions.filter((s) => s.initiator).length;
+  const receivingCount = connectedSessions.filter((s) => !s.initiator).length;
   const liveCount = connectedSessions.length;
 
   const ordered = [...liveSessions].sort((a, b) => {
@@ -153,17 +153,17 @@ export default function SessionPanel({
                     </p>
                     <p className="text-xs text-gray-400">
                       {session.status === 'connected'
-                        ? session.remoteStream
-                          ? 'Receiving remote audio via WebRTC'
-                          : 'Sharing your mic with them'
+                        ? session.initiator
+                          ? `Sharing your mic to ${session.friend.displayName}`
+                          : `Receiving audio from ${session.friend.displayName}`
                         : meta.label}
                     </p>
                   </div>
                   <span className="text-xs text-gray-300 font-medium uppercase tracking-wide">
                     {session.status === 'connected'
-                      ? session.remoteStream
-                        ? 'Receiving'
-                        : 'Sharing'
+                      ? session.initiator
+                        ? 'Sharing'
+                        : 'Receiving'
                       : meta.label}
                   </span>
                   <button
@@ -171,9 +171,9 @@ export default function SessionPanel({
                     className="rounded bg-red-600 hover:bg-red-500 px-3 py-1.5 text-sm text-white"
                   >
                     {session.status === 'connected'
-                      ? session.remoteStream
-                        ? 'Stop receiving'
-                        : 'Stop sharing'
+                      ? session.initiator
+                        ? 'Stop sharing'
+                        : 'Stop receiving'
                       : 'Cancel'}
                   </button>
                 </div>

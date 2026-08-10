@@ -11,7 +11,7 @@ const STATUS_LABELS = {
 
 function sessionRoleLabel(session) {
   if (session.status !== 'connected') return STATUS_LABELS[session.status];
-  return session.remoteStream ? 'Receiving' : 'Sharing';
+  return session.initiator ? 'Sharing' : 'Receiving';
 }
 
 function PresenceDot({ online }) {

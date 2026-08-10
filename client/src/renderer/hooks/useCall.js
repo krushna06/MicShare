@@ -105,7 +105,7 @@ export function useCall({ socket, mic, iceServers, friends }) {
         await addLocalTracks(pc);
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
-        setSessions((prev) => ({ ...prev, [friend.id]: { friend, status: 'calling' } }));
+        setSessions((prev) => ({ ...prev, [friend.id]: { friend, status: 'calling', initiator: true } }));
         socket.emit(socketEvents.rtc.call, { to: friend.id, offer: pc.localDescription });
         timeoutsRef.current[friend.id] = setTimeout(() => {
           socket.emit(socketEvents.rtc.hangup, { to: friend.id });
@@ -115,7 +115,7 @@ export function useCall({ socket, mic, iceServers, friends }) {
         closePeer(friend.id);
         setSessions((prev) => ({
           ...prev,
-          [friend.id]: { friend, status: 'ended', error: err.message },
+          [friend.id]: { friend, status: 'ended', error: err.message, initiator: true },
         }));
       }
     },
@@ -176,7 +176,7 @@ export function useCall({ socket, mic, iceServers, friends }) {
         displayName: fromUser ? fromUser.displayName : `User ${from}`,
       };
       pendingOffersRef.current[from] = offer;
-      setSessions((prev) => ({ ...prev, [from]: { friend, status: 'ringing' } }));
+      setSessions((prev) => ({ ...prev, [from]: { friend, status: 'ringing', initiator: false } }));
       setIncoming({ friend });
       timeoutsRef.current[from] = setTimeout(() => {
         socket.emit(socketEvents.rtc.hangup, { to: from });
