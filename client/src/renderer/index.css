@@ -20,6 +20,10 @@
     user-select: text;
   }
 
+  button:focus {
+    outline: none;
+  }
+
   ::selection {
     background-color: #5865f2;
     color: #ffffff;

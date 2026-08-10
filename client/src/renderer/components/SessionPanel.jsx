@@ -139,7 +139,9 @@ export default function SessionPanel({
                     </p>
                     <p className="text-xs text-gray-400">
                       {session.status === 'connected'
-                        ? 'Receiving remote audio via WebRTC'
+                        ? session.initiator
+                          ? `Sending Audio to ${session.friend.displayName}`
+                          : `Receiving Audio from ${session.friend.displayName}`
                         : meta.label}
                     </p>
                   </div>
