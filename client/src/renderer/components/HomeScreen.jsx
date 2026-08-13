@@ -19,6 +19,7 @@ import CapturePanel from './CapturePanel';
 import SessionPanel from './SessionPanel';
 import SettingsModal from './SettingsModal';
 import DeviceInfoModal from './DeviceInfoModal';
+import SoundboardPanel from './SoundboardPanel';
 import Logo from './Logo';
 
 export default function HomeScreen({ token, user, onLogout }) {
@@ -172,6 +173,11 @@ export default function HomeScreen({ token, user, onLogout }) {
             playbackId={devices.selectedPlayback}
             routeId={devices.selectedOutput}
             deafened={deafened}
+          />
+
+          <SoundboardPanel
+            routeId={devices.selectedOutput}
+            playbackId={devices.selectedPlayback}
           />
         </main>
       </div>

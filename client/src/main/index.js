@@ -3,8 +3,13 @@ const path = require('node:path');
 const log = require('electron-log');
 const { registerIpcHandlers } = require('./ipc');
 const { initUpdater } = require('./updater');
+const { registerSoundboardScheme, initSoundboard } = require('./soundboard');
 
 const isDev = Boolean(process.env.VITE_DEV_SERVER_URL);
+
+registerSoundboardScheme();
+
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
 function createMainWindow() {
   const window = new BrowserWindow({
@@ -59,6 +64,7 @@ app.whenReady().then(() => {
   });
 
   registerIpcHandlers();
+  initSoundboard(() => BrowserWindow.getAllWindows()[0]);
   log.info('Mic Share client starting', { version: app.getVersion(), isDev });
 
   createMainWindow();

@@ -21,6 +21,9 @@ files:
 asar: true
 compression: normal
 
+asarUnpack:
+  - node_modules/node-global-key-listener/bin/**
+
 npmRebuild: false
 
 win:
