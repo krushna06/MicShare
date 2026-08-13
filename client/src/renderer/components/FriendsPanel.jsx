@@ -29,6 +29,7 @@ export default function FriendsPanel({
   sessions,
   startCall,
   hangup,
+  initialRequests,
 }) {
   const api = useMemo(() => createApiClient(token), [token]);
   const [tab, setTab] = useState('all');
@@ -36,8 +37,8 @@ export default function FriendsPanel({
   const [results, setResults] = useState(null);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
-  const [incoming, setIncoming] = useState([]);
-  const [outgoing, setOutgoing] = useState([]);
+  const [incoming, setIncoming] = useState(initialRequests?.incoming || []);
+  const [outgoing, setOutgoing] = useState(initialRequests?.outgoing || []);
   const [requestsError, setRequestsError] = useState(null);
   const [actionError, setActionError] = useState(null);
   const [busyUserId, setBusyUserId] = useState(null);

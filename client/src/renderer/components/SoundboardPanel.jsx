@@ -165,7 +165,7 @@ function SoundRow({ sound, soundboard }) {
     </li>
   );
 }
-export default function SoundboardPanel({ routeId, playbackId }) {
+export default function SoundboardPanel({ routeId, playbackId, devicesLoaded }) {
   const soundboard = useSoundboard({ routeId, playbackId });
 
   return (
@@ -196,7 +196,7 @@ export default function SoundboardPanel({ routeId, playbackId }) {
         </p>
       )}
 
-      {!routeId && (
+      {devicesLoaded && !routeId && (
         <p className="text-sm text-amber-400 bg-amber-900/30 rounded px-3 py-2 mb-4">
           No Mic Share virtual microphone selected. Sounds will use your default output. Pick one
           in Settings to route sounds to other apps as a microphone.

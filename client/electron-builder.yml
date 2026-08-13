@@ -19,7 +19,10 @@ files:
   - package.json
 
 asar: true
-compression: normal
+compression: maximum
+
+electronLanguages:
+  - en-US
 
 asarUnpack:
   - node_modules/node-global-key-listener/bin/**

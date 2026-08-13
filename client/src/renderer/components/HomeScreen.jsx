@@ -22,15 +22,24 @@ import DeviceInfoModal from './DeviceInfoModal';
 import SoundboardPanel from './SoundboardPanel';
 import Logo from './Logo';
 
-export default function HomeScreen({ token, user, onLogout }) {
+export default function HomeScreen({
+  token,
+  user,
+  onLogout,
+  initialFriends,
+  initialRequests,
+}) {
   const [profile, setProfile] = useState(user);
   const [profileError, setProfileError] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [deviceInfoOpen, setDeviceInfoOpen] = useState(false);
   const [deafened, setDeafened] = useState(false);
   const socket = useSocket(token);
-  const { friends, error: presenceError, isOnline, refresh: refreshFriends } =
-    usePresence(token, socket);
+  const { friends, error: presenceError, isOnline, refresh: refreshFriends } = usePresence(
+    token,
+    socket,
+    initialFriends
+  );
   const devices = useDevices();
   const mic = useMicrophone(devices.selectedInput, devices.inputs);
   const rtcConfig = useRtcConfig();
@@ -97,6 +106,7 @@ export default function HomeScreen({ token, user, onLogout }) {
             sessions={call.sessions}
             startCall={call.startCall}
             hangup={call.hangup}
+            initialRequests={initialRequests}
           />
           <div className="shrink-0 bg-gray-900 border-t border-gray-800 px-3 py-2.5 flex items-center gap-1.5">
             <div className="flex-1 min-w-0 flex items-center gap-2.5">
@@ -178,6 +188,7 @@ export default function HomeScreen({ token, user, onLogout }) {
           <SoundboardPanel
             routeId={devices.selectedOutput}
             playbackId={devices.selectedPlayback}
+            devicesLoaded={devices.devices !== null}
           />
         </main>
       </div>

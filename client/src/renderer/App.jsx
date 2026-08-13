@@ -2,11 +2,28 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { initApi, createApiClient, extractApiError, setUnauthorizedHandler } from './lib/api';
 import AuthScreen from './components/AuthScreen';
 import HomeScreen from './components/HomeScreen';
+import Logo from './components/Logo';
 
 export default function App() {
   const [phase, setPhase] = useState('booting');
   const [auth, setAuth] = useState(null);
   const [bootingError, setBootingError] = useState(null);
+
+  const loadInitialData = useCallback(async (token) => {
+    const api = createApiClient(token);
+    let friends = null;
+    let requests = null;
+    try {
+      const [presenceRes, requestsRes] = await Promise.all([
+        api.get('/presence/friends'),
+        api.get('/friends/requests'),
+      ]);
+      friends = presenceRes.data.friends;
+      requests = requestsRes.data;
+    } catch {
+    }
+    return { friends, requests };
+  }, []);
 
   useEffect(() => {
     setUnauthorizedHandler(async () => {
@@ -25,7 +42,8 @@ export default function App() {
         if (token) {
           const api = createApiClient(token);
           const { data } = await api.get('/users/me');
-          setAuth({ token, user: data.user });
+          const initial = await loadInitialData(token);
+          setAuth({ token, user: data.user, ...initial });
         }
       } catch {
         await window.micShare?.auth?.delete();
@@ -33,12 +51,16 @@ export default function App() {
         setPhase('ready');
       }
     })();
-  }, []);
+  }, [loadInitialData]);
 
-  const handleAuthenticated = useCallback(async (token, user) => {
-    await window.micShare?.auth?.set(token);
-    setAuth({ token, user });
-  }, []);
+  const handleAuthenticated = useCallback(
+    async (token, user) => {
+      await window.micShare?.auth?.set(token);
+      const initial = await loadInitialData(token);
+      setAuth({ token, user, ...initial });
+    },
+    [loadInitialData]
+  );
 
   const handleLogout = useCallback(async () => {
     const current = auth;
@@ -56,8 +78,14 @@ export default function App() {
 
   if (phase === 'booting') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-100">
-        <p className="text-gray-400">Loading Mic Share…</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 text-gray-100 gap-6 select-none">
+        <Logo className="w-20 h-20 animate-pulse" />
+        <div className="flex items-center gap-1 text-2xl font-bold tracking-wide text-gray-400">
+          Loading Mic Share
+          <span className="boot-dot">.</span>
+          <span className="boot-dot">.</span>
+          <span className="boot-dot">.</span>
+        </div>
       </div>
     );
   }
@@ -77,7 +105,15 @@ export default function App() {
   }
 
   if (auth) {
-    return <HomeScreen token={auth.token} user={auth.user} onLogout={handleLogout} />;
+    return (
+      <HomeScreen
+        token={auth.token}
+        user={auth.user}
+        onLogout={handleLogout}
+        initialFriends={auth.friends}
+        initialRequests={auth.requests}
+      />
+    );
   }
 
   return <AuthScreen onAuthenticated={handleAuthenticated} />;

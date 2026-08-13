@@ -10,8 +10,8 @@ const SOCKET_AUTH_ERROR_HINTS = [
   'user no longer exists',
 ];
 
-export function usePresence(token, socket) {
-  const [friends, setFriends] = useState(null);
+export function usePresence(token, socket, initialFriends) {
+  const [friends, setFriends] = useState(initialFriends || null);
   const [socketState, setSocketState] = useState('connecting');
   const [error, setError] = useState(null);
 
