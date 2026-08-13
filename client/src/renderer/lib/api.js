@@ -26,10 +26,10 @@ export async function setServerUrl(url) {
   }
 }
 
-export function createApiClient(token) {
+export function createApiClient(token, options = {}) {
   const client = axios.create({
     baseURL: `${getServerUrl()}/api`,
-    timeout: 10000,
+    timeout: options.timeout || 10000,
   });
 
   client.interceptors.request.use((config) => {
@@ -42,8 +42,9 @@ export function createApiClient(token) {
   client.interceptors.response.use(
     (response) => response,
     (error) => {
+      const autoUnauthorized = options.autoUnauthorized !== false;
       const hadAuth = error.config && error.config.headers && error.config.headers.Authorization;
-      if (error.response && error.response.status === 401 && hadAuth) {
+      if (autoUnauthorized && error.response && error.response.status === 401 && hadAuth) {
         handleUnauthorized();
       }
       return Promise.reject(error);

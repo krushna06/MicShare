@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { createApiClient, extractApiError } from '../lib/api';
+import React, { useCallback, useMemo, useState } from 'react';
+import { createApiClient } from '../lib/api';
 import { useSocket } from '../hooks/useSocket';
 import { usePresence } from '../hooks/usePresence';
 import { useDevices } from '../hooks/useDevices';
@@ -30,7 +30,6 @@ export default function HomeScreen({
   initialRequests,
 }) {
   const [profile, setProfile] = useState(user);
-  const [profileError, setProfileError] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [deviceInfoOpen, setDeviceInfoOpen] = useState(false);
   const [deafened, setDeafened] = useState(false);
@@ -48,22 +47,6 @@ export default function HomeScreen({
     [rtcConfig.turn, rtcConfig.custom]
   );
   const call = useCall({ socket, mic, iceServers, friends });
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const api = createApiClient(token);
-      try {
-        const { data } = await api.get('/users/me');
-        if (!cancelled) setProfile(data.user);
-      } catch (err) {
-        if (!cancelled) setProfileError(extractApiError(err));
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [token]);
 
   const updateProfile = useCallback(async (displayName) => {
     const api = createApiClient(token);
@@ -155,11 +138,6 @@ export default function HomeScreen({
         </aside>
 
         <main className="flex-1 overflow-y-auto p-6 space-y-6">
-          {profileError && (
-            <p className="text-sm text-red-400 bg-red-900/30 rounded px-3 py-2 whitespace-pre-line">
-              {profileError}
-            </p>
-          )}
           {presenceError && (
             <p className="text-sm text-red-400 bg-red-900/30 rounded px-3 py-2 whitespace-pre-line">
               {presenceError}

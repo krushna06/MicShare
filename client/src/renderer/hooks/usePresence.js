@@ -32,15 +32,17 @@ export function usePresence(token, socket, initialFriends) {
     let mounted = true;
 
     const api = createApiClient(token);
-    (async () => {
-      try {
-        const { data } = await api.get('/presence/friends');
-        if (!mounted) return;
-        setFriends(data.friends);
-      } catch (err) {
-        if (mounted) setError(extractApiError(err));
-      }
-    })();
+    if (!initialFriends) {
+      (async () => {
+        try {
+          const { data } = await api.get('/presence/friends');
+          if (!mounted) return;
+          setFriends(data.friends);
+        } catch (err) {
+          if (mounted) setError(extractApiError(err));
+        }
+      })();
+    }
 
     const onConnect = () => {
       if (mounted) {
@@ -90,7 +92,7 @@ export function usePresence(token, socket, initialFriends) {
       socket.off(socketEvents.presence.update, onPresence);
       socket.off(socketEvents.friends.updated, onFriendsUpdated);
     };
-  }, [token, socket, refresh]);
+  }, [token, socket, refresh, initialFriends]);
 
   return {
     friends,

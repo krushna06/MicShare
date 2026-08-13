@@ -9,8 +9,10 @@ export default function App() {
   const [auth, setAuth] = useState(null);
   const [bootingError, setBootingError] = useState(null);
 
-  const loadInitialData = useCallback(async (token) => {
-    const api = createApiClient(token);
+  const BOOT_TIMEOUT = 5000;
+
+  const loadInitialData = useCallback(async (token, timeout) => {
+    const api = createApiClient(token, { timeout });
     let friends = null;
     let requests = null;
     try {
@@ -40,10 +42,25 @@ export default function App() {
       try {
         const token = await window.micShare?.auth?.get();
         if (token) {
-          const api = createApiClient(token);
-          const { data } = await api.get('/users/me');
-          const initial = await loadInitialData(token);
-          setAuth({ token, user: data.user, ...initial });
+          const api = createApiClient(token, {
+            timeout: BOOT_TIMEOUT,
+            autoUnauthorized: false,
+          });
+          const [me, friendsRes, requestsRes] = await Promise.allSettled([
+            api.get('/users/me'),
+            api.get('/presence/friends'),
+            api.get('/friends/requests'),
+          ]);
+          if (me.status === 'fulfilled') {
+            setAuth({
+              token,
+              user: me.value.data.user,
+              friends: friendsRes.status === 'fulfilled' ? friendsRes.value.data.friends : null,
+              requests: requestsRes.status === 'fulfilled' ? requestsRes.value.data : null,
+            });
+          } else {
+            await window.micShare?.auth?.delete();
+          }
         }
       } catch {
         await window.micShare?.auth?.delete();
@@ -51,7 +68,7 @@ export default function App() {
         setPhase('ready');
       }
     })();
-  }, [loadInitialData]);
+  }, []);
 
   const handleAuthenticated = useCallback(
     async (token, user) => {

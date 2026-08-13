@@ -56,8 +56,9 @@ export default function FriendsPanel({
   }, [api]);
 
   useEffect(() => {
+    if (initialRequests) return;
     loadRequests();
-  }, [loadRequests]);
+  }, [loadRequests, initialRequests]);
 
   useEffect(() => {
     if (!socket) return undefined;
